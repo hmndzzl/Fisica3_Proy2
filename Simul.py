@@ -19,9 +19,9 @@ DISTANCE_BETWEEN_PLATES = 0.03  # 3 cm entre placas V y H
 DISTANCE_GUN_TO_PLATES = 0.05   # 5 cm del cañón a las placas
 
 # Configuración de la ventana
-WINDOW_WIDTH = 1600
+WINDOW_WIDTH = 1650
 WINDOW_HEIGHT = 800
-CONTROL_PANEL_WIDTH = 450
+CONTROL_PANEL_WIDTH = 500
 
 # Colores
 BLACK = (0, 0, 0)
@@ -232,26 +232,26 @@ class CRTSimulation:
                 {"name": "δ=135°", "fv": 1.0, "fh": 1.0, "phase": 135},
                 {"name": "δ=180°", "fv": 1.0, "fh": 1.0, "phase": 180},
             ],
-            "1:2": [
-                {"name": "δ=0°",   "fv": 1.0, "fh": 2.0, "phase":   0},
-                {"name": "δ=45°",  "fv": 1.0, "fh": 2.0, "phase":  45},
-                {"name": "δ=90°",  "fv": 1.0, "fh": 2.0, "phase":  90},
-                {"name": "δ=135°", "fv": 1.0, "fh": 2.0, "phase": 135},
-                {"name": "δ=180°", "fv": 1.0, "fh": 2.0, "phase": 180},
+            "1:2": [  # ωx:ωy = 1:2  → horiz=1, vert=2
+                {"name": "δ=0°",   "fv": 2.0, "fh": 1.0, "phase":   0},
+                {"name": "δ=45°",  "fv": 2.0, "fh": 1.0, "phase":  45},
+                {"name": "δ=90°",  "fv": 2.0, "fh": 1.0, "phase":  90},
+                {"name": "δ=135°", "fv": 2.0, "fh": 1.0, "phase": 135},
+                {"name": "δ=180°", "fv": 2.0, "fh": 1.0, "phase": 180},
             ],
-            "1:3": [
-                {"name": "δ=0°",   "fv": 1.0, "fh": 3.0, "phase":   0},
-                {"name": "δ=45°",  "fv": 1.0, "fh": 3.0, "phase":  45},
-                {"name": "δ=90°",  "fv": 1.0, "fh": 3.0, "phase":  90},
-                {"name": "δ=135°", "fv": 1.0, "fh": 3.0, "phase": 135},
-                {"name": "δ=180°", "fv": 1.0, "fh": 3.0, "phase": 180},
+            "1:3": [  # ωx:ωy = 1:3  → horiz=1, vert=3
+                {"name": "δ=0°",   "fv": 3.0, "fh": 1.0, "phase":   180},
+                {"name": "δ=45°",  "fv": 3.0, "fh": 1.0, "phase":  45},
+                {"name": "δ=90°",  "fv": 3.0, "fh": 1.0, "phase":  90},
+                {"name": "δ=135°", "fv": 3.0, "fh": 1.0, "phase": 135},
+                {"name": "δ=180°", "fv": 3.0, "fh": 1.0, "phase": 0},
             ],
-            "2:3": [
-                {"name": "δ=0°",   "fv": 2.0, "fh": 3.0, "phase":   0},
-                {"name": "δ=45°",  "fv": 2.0, "fh": 3.0, "phase":  45},
-                {"name": "δ=90°",  "fv": 2.0, "fh": 3.0, "phase":  90},
-                {"name": "δ=135°", "fv": 2.0, "fh": 3.0, "phase": 135},
-                {"name": "δ=180°", "fv": 2.0, "fh": 3.0, "phase": 180},
+            "2:3": [  # ωx:ωy = 2:3  → horiz=2, vert=3
+                {"name": "δ=0°",   "fv": 3.0, "fh": 2.0, "phase":   0},
+                {"name": "δ=45°",  "fv": 3.0, "fh": 2.0, "phase":  45},
+                {"name": "δ=90°",  "fv": 3.0, "fh": 2.0, "phase":  90},
+                {"name": "δ=135°", "fv": 3.0, "fh": 2.0, "phase": 135},
+                {"name": "δ=180°", "fv": 3.0, "fh": 2.0, "phase": 180},
             ],
         }
         self.show_presets = False
@@ -363,7 +363,6 @@ class CRTSimulation:
                         'time': self.time,
                         'brightness': brightness
                     })
-                
                 self.electron.reset()
                 
     def draw_side_view(self):
