@@ -357,40 +357,32 @@ class CRTSimulation:
 
             return vert_v, horiz_v
             
+
     def update_physics(self):
-        """Actualizar la física de la simulación (con presets Lissajous correctos)"""
+        """Actualizar la física de la simulación"""
         if self.simulation_speed == 0:
             return
-
-        # Avanzar el tiempo de simulación en ms
-        self.time += self.clock.get_time() * self.simulation_speed
-
-        # Paso de integración en segundos
-        dt = 2e-9  
+            
+        dt = 2e-9  # Paso de tiempo
         vertical_voltage, horizontal_voltage = self.get_voltages()
-
-        # Iterar en pequeños pasos para simular movimiento continuo
+        
+        # Avanzar con pasos pequeños por frame
         for _ in range(100):
-            self.electron.update(
-                dt,
-                self.sliders['acceleration_voltage'].val,
-                vertical_voltage,
-                horizontal_voltage
-            )
-            # Cuando el electrón golpea la pantalla
+            self.electron.update(dt, self.sliders['acceleration_voltage'].val, vertical_voltage, horizontal_voltage)
+            
+            # Si el electrón golpea la pantalla
             if self.electron.has_hit_screen():
                 if self.electron.is_within_screen_bounds():
                     screen_pos = self.electron.get_screen_position()
-                    brightness = min(1.0, self.sliders['acceleration_voltage'].val / 3000.0)
-
+                    # Brillo por voltaje de aceleración
+                    brightness = min(1.0, self.sliders['acceleration_voltage'].val / 2000.0)
+                    
                     self.screen_traces.append({
                         'x': screen_pos[0],
                         'y': screen_pos[1],
                         'time': self.time,
                         'brightness': brightness
                     })
-
-                # Reinicio limpio para que use siempre los últimos parámetros
                 self.electron.reset()
                 
     def draw_side_view(self):
