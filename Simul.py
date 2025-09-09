@@ -236,7 +236,7 @@ class CRTSimulation:
                 {"name": "δ=0°",   "fv": 2.0, "fh": 1.0, "phase":   90},
                 {"name": "δ=45°",  "fv": 2.0, "fh": 1.0, "phase":  45},
                 {"name": "δ=90°",  "fv": 2.0, "fh": 1.0, "phase":  0},
-                {"name": "δ=135°", "fv": 2.0, "fh": 1.0, "phase": 135},
+                {"name": "δ=135°", "fv": 2.0, "fh": 1.0, "phase": 320},
                 {"name": "δ=180°", "fv": 2.0, "fh": 1.0, "phase": 270},
             ],
             "1:3": [  # ωx:ωy = 1:3  → horiz=1, vert=3
