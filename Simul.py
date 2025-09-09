@@ -233,33 +233,30 @@ class CRTSimulation:
                 {"name": "δ=180°", "fv": 1.0, "fh": 1.0, "phase": 180},
             ],
             "1:2": [  # ωx:ωy = 1:2  → horiz=1, vert=2
-                {"name": "δ=0°",   "fv": 2.0, "fh": 1.0, "phase":   0},
+                {"name": "δ=0°",   "fv": 2.0, "fh": 1.0, "phase":   90},
                 {"name": "δ=45°",  "fv": 2.0, "fh": 1.0, "phase":  45},
-                {"name": "δ=90°",  "fv": 2.0, "fh": 1.0, "phase":  90},
+                {"name": "δ=90°",  "fv": 2.0, "fh": 1.0, "phase":  0},
                 {"name": "δ=135°", "fv": 2.0, "fh": 1.0, "phase": 135},
-                {"name": "δ=180°", "fv": 2.0, "fh": 1.0, "phase": 180},
+                {"name": "δ=180°", "fv": 2.0, "fh": 1.0, "phase": 270},
             ],
             "1:3": [  # ωx:ωy = 1:3  → horiz=1, vert=3
-                {"name": "δ=0°",   "fv": 3.0, "fh": 1.0, "phase":   180},
+                {"name": "δ=0°",   "fv": 3.0, "fh": 1.0, "phase":   0},
                 {"name": "δ=45°",  "fv": 3.0, "fh": 1.0, "phase":  45},
                 {"name": "δ=90°",  "fv": 3.0, "fh": 1.0, "phase":  90},
                 {"name": "δ=135°", "fv": 3.0, "fh": 1.0, "phase": 135},
-                {"name": "δ=180°", "fv": 3.0, "fh": 1.0, "phase": 0},
+                {"name": "δ=180°", "fv": 3.0, "fh": 1.0, "phase": 180},
             ],
             "2:3": [  # ωx:ωy = 2:3  → horiz=2, vert=3
-                {"name": "δ=0°",   "fv": 3.0, "fh": 2.0, "phase":   0},
-                {"name": "δ=45°",  "fv": 3.0, "fh": 2.0, "phase":  45},
-                {"name": "δ=90°",  "fv": 3.0, "fh": 2.0, "phase":  90},
-                {"name": "δ=135°", "fv": 3.0, "fh": 2.0, "phase": 135},
-                {"name": "δ=180°", "fv": 3.0, "fh": 2.0, "phase": 180},
+                {"name": "δ=0°",   "fv": 3.0, "fh": 2.0, "phase":   45},
+                {"name": "δ=45°",  "fv": 3.0, "fh": 2.0, "phase":  0},
+                {"name": "δ=90°",  "fv": 3.0, "fh": 2.0, "phase":  135},
+                {"name": "δ=135°", "fv": 3.0, "fh": 2.0, "phase": 180},
+                {"name": "δ=180°", "fv": 3.0, "fh": 2.0, "phase": 135},
             ],
         }
         self.show_presets = False
         self.preset_buttons = []
-
-
-
-        
+    
     def handle_events(self):
         """Manejar eventos de pygame"""
         for event in pygame.event.get():
@@ -295,17 +292,33 @@ class CRTSimulation:
                 self.buttons['manual'].active = False
                 self.buttons['lissajous'].active = True
 
+            # abrir/cerrar menú de presets (solo disponible en modo lissajous)
             if self.mode == 'lissajous' and self.buttons['preset_lissajous'].handle_event(event):
                 self.show_presets = not self.show_presets
+
+            # si el menú está abierto, manejar clics sobre los botones de la tabla
             if self.mode == 'lissajous' and self.show_presets:
                 for btn, preset in self.preset_buttons:
                     if btn.handle_event(event):
-                        self.sliders['vert_frequency'].val = preset['fv']
+                        # aplicar preset: fh = frecuencia horizontal (ωx), fv = vertical (ωy)
                         self.sliders['horiz_frequency'].val = preset['fh']
-                        self.sliders['horiz_phase'].val = preset['phase']
-                        self.show_presets = False  # cerrar después de elegir
+                        self.sliders['vert_frequency'].val = preset['fv']
 
+                        # δ como diferencia de fase entre vertical y horizontal
+                        self.sliders['horiz_phase'].val = 0.0
+                        self.sliders['vert_phase'].val = preset.get('phase', 0.0)
 
+                        # Guardar preset activo
+                        self.active_preset = preset
+
+                        # Reinicio inmediato de simulación
+                        self.electron.reset()
+                        self.screen_traces.clear()
+                        self.time = 0.0  # reiniciar tiempo simulado
+
+                        # cerrar menú
+                        self.show_presets = False
+                        break
                 
             if self.buttons['clear'].handle_event(event):
                 self.screen_traces.clear()
@@ -320,49 +333,64 @@ class CRTSimulation:
                 self.buttons['beam_toggle'].active = self.beam_visible
                 
     def get_voltages(self):
-        """Calcular voltajes según el modo actual"""
+        """Calcular voltajes de placas según modo"""
         if self.mode == 'manual':
             return self.sliders['vertical_voltage'].val, self.sliders['horizontal_voltage'].val
         else:
-            t = self.time / 1000.0  # tiempo en segundos
-            
-            # Señal vertical: A*sin(2πft + φ)
-            vert_v = (self.sliders['vert_amplitude'].val * 
-                     math.sin(2 * math.pi * self.sliders['vert_frequency'].val * t + 
-                             self.sliders['vert_phase'].val * math.pi / 180))
-            
-            # Señal horizontal: A*sin(2πft + φ)
-            horiz_v = (self.sliders['horiz_amplitude'].val * 
-                      math.sin(2 * math.pi * self.sliders['horiz_frequency'].val * t + 
-                              self.sliders['horiz_phase'].val * math.pi / 180))
-            
+            # tiempo simulado en segundos
+            t = self.time / 1000.0  
+
+            # amplitudes
+            Ah = self.sliders['horiz_amplitude'].val
+            Av = self.sliders['vert_amplitude'].val
+
+            # frecuencias
+            fh = self.sliders['horiz_frequency'].val
+            fv = self.sliders['vert_frequency'].val
+
+            # diferencia de fase δ (aplicada solo en Y)
+            delta = (self.sliders['vert_phase'].val - self.sliders['horiz_phase'].val) * math.pi / 180
+
+            # Voltajes tipo Lissajous
+            horiz_v = Ah * math.sin(2 * math.pi * fh * t)
+            vert_v  = Av * math.sin(2 * math.pi * fv * t + delta)
+
             return vert_v, horiz_v
             
     def update_physics(self):
-        """Actualizar la física de la simulación"""
+        """Actualizar la física de la simulación (con presets Lissajous correctos)"""
         if self.simulation_speed == 0:
             return
-            
-        dt = 2e-9  # Paso de tiempo
+
+        # Avanzar el tiempo de simulación en ms
+        self.time += self.clock.get_time() * self.simulation_speed
+
+        # Paso de integración en segundos
+        dt = 2e-9  
         vertical_voltage, horizontal_voltage = self.get_voltages()
-        
-        # Avanzar con pasos pequeños por frame
+
+        # Iterar en pequeños pasos para simular movimiento continuo
         for _ in range(100):
-            self.electron.update(dt, self.sliders['acceleration_voltage'].val, vertical_voltage, horizontal_voltage)
-            
-            # Si el electrón golpea la pantalla
+            self.electron.update(
+                dt,
+                self.sliders['acceleration_voltage'].val,
+                vertical_voltage,
+                horizontal_voltage
+            )
+            # Cuando el electrón golpea la pantalla
             if self.electron.has_hit_screen():
                 if self.electron.is_within_screen_bounds():
                     screen_pos = self.electron.get_screen_position()
-                    # Brillo por voltaje de aceleración
                     brightness = min(1.0, self.sliders['acceleration_voltage'].val / 4000.0)
-                    
+
                     self.screen_traces.append({
                         'x': screen_pos[0],
                         'y': screen_pos[1],
                         'time': self.time,
                         'brightness': brightness
                     })
+
+                # Reinicio limpio para que use siempre los últimos parámetros
                 self.electron.reset()
                 
     def draw_side_view(self):
@@ -461,7 +489,6 @@ class CRTSimulation:
         info2 = self.font_small.render(voltage_text, True, WHITE) 
         self.screen.blit(info1, (view_rect.x + 10, view_rect.y + view_rect.height - 55)) 
         self.screen.blit(info2, (view_rect.x + 10, view_rect.y + view_rect.height - 35))
-
         
     def draw_top_view(self):
         """Dibujar vista superior (deflexión horizontal)"""
@@ -629,7 +656,6 @@ class CRTSimulation:
         self.buttons['manual'].draw(self.screen)
         self.buttons['lissajous'].draw(self.screen)
         
-
         # Controles básicos
         basic_text = self.font_label.render("Controles Básicos", True, WHITE)
         self.screen.blit(basic_text, (control_rect.x + 20, 50))
@@ -693,9 +719,6 @@ class CRTSimulation:
                         btn = Button(btn_x, btn_y, cell_w-5, cell_h-5, preset["name"])
                         btn.draw(self.screen)
                         self.preset_buttons.append((btn, preset))
-
-
-
 
         # Botones de control
         control_buttons_text = self.font_label.render("Controles", True, WHITE)
