@@ -251,7 +251,7 @@ class CRTSimulation:
                 {"name": "δ=45°",  "fv": 3.0, "fh": 2.0, "phase":  0},
                 {"name": "δ=90°",  "fv": 3.0, "fh": 2.0, "phase":  135},
                 {"name": "δ=135°", "fv": 3.0, "fh": 2.0, "phase": 180},
-                {"name": "δ=180°", "fv": 3.0, "fh": 2.0, "phase": 135},
+                {"name": "δ=180°", "fv": 3.0, "fh": 2.0, "phase": 45},
             ],
         }
         self.show_presets = False
