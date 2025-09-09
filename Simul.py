@@ -381,7 +381,7 @@ class CRTSimulation:
             if self.electron.has_hit_screen():
                 if self.electron.is_within_screen_bounds():
                     screen_pos = self.electron.get_screen_position()
-                    brightness = min(1.0, self.sliders['acceleration_voltage'].val / 4000.0)
+                    brightness = min(1.0, self.sliders['acceleration_voltage'].val / 3000.0)
 
                     self.screen_traces.append({
                         'x': screen_pos[0],
